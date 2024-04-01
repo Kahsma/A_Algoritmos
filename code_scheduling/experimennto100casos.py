@@ -15,7 +15,7 @@ def generate_random_activities(nAct, nSlots):
     return activities
 
 # Prepare the CSV file
-with open('results.csv', 'a', newline='') as file:
+with open('results.csv', 'w', newline='') as file:
     writer = csv.writer(file)
     writer.writerow(["Test Run", "Greedy Result", "Dynamic Programming Result"])
 
