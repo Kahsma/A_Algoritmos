@@ -1,54 +1,76 @@
 import pygame
+import sys
 
-# Initialize Pygame
+def crear_tablero_desde_archivo(nombre_archivo):
+    with open(nombre_archivo, 'r') as archivo:
+        lineas = archivo.readlines()
+
+    # Obtener el tamaño del tablero
+    tamano = int(lineas[0])
+    tablero = [[0] * tamano for _ in range(tamano)]
+
+    # Leer las coordenadas y tipos de perlas
+    for linea in lineas[1:]:
+        fila, columna, tipo_perla = map(int, linea.strip().split(','))
+        tablero[fila-1][columna-1] = tipo_perla
+
+    return tablero
+
+def dibujar_tablero(screen, tablero, grid_size):    
+    # Dibujar cuadrícula
+    for x in range(len(tablero[0])):
+        for y in range(len(tablero)):
+            pygame.draw.rect(screen, WHITE, (x * grid_size, y * grid_size, grid_size, grid_size))
+            pygame.draw.rect(screen, BLACK, (x * grid_size, y * grid_size, grid_size, grid_size), 1)
+
+    # Dibujar perlas
+    for y in range(len(tablero)):
+        for x in range(len(tablero[y])):
+            if tablero[y][x] == 1:  # Perla blanca
+                pygame.draw.circle(screen, (255, 255, 255), ((x * grid_size) + (grid_size // 2), (y * grid_size) + (grid_size // 2)), 10)
+            elif tablero[y][x] == 2:  # Perla negra
+                pygame.draw.circle(screen, (0, 0, 0), ((x * grid_size) + (grid_size // 2), (y * grid_size) + (grid_size // 2)), 10)
+
+# Inicializar Pygame
 pygame.init()
 
-# Set up the game window
-window_width = 800
-window_height = 600
-window = pygame.display.set_mode((window_width, window_height))
-pygame.display.set_caption("Masyu Game")
+# Constantes
+WIDTH, HEIGHT = 600, 600
+GRID_SIZE = WIDTH // 11  # Calculamos el tamaño de la cuadrícula en función del ancho de la pantalla y el tamaño del tablero
+NOTEBOOK_YELLOW = (255, 219, 111)
+BLACK = (0, 0, 0)
 
-# Load data from entrada.txt
-board_data = []
-with open("entrada.txt", "r") as file:
-    for line in file:
-        row = line.strip().split()
-        board_data.append(row)
+# Nombre del archivo de entrada
+nombre_archivo = 'entrada.txt'
 
-# Calculate the size of each cell
-num_rows = int(board_data[0][0])
-num_cols = int(board_data[0][1])
-cell_width = window_width // num_cols
-cell_height = window_height // num_rows
+# Crear el tablero a partir del archivo
+tablero = crear_tablero_desde_archivo(nombre_archivo)
 
-# Game loop
+# Crear la ventana del juego
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Tablero desde Archivo")
+
+# Bucle principal del juego
 running = True
 while running:
-    # Handle events
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            running = False
+            pygame.quit()
+            sys.exit()
+                # Detección de clics
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Si se hace clic izquierdo
+            pos = pygame.mouse.get_pos()
+            x, y = pos[0] // GRID_SIZE, pos[1] // GRID_SIZE  # Convertir posición de pantalla a posición en la matriz
+            if 0 <= x < len(tablero[0]) and 0 <= y < len(tablero):  # Verificar que la posición esté dentro del tablero
+                tipo_perla = tablero[y][x]
+                if tipo_perla == 1:
+                    print("Clic en perla blanca en posición:", (x+1, y+1))
+                elif tipo_perla == 2:
+                    print("Clic en perla negra en posición:", (x+1, y+1))
 
-    # Update game logic
+    screen.fill(NOTEBOOK_YELLOW)
 
-    # Render graphics
-    window.fill((255, 255, 255))  # Fill the window with white color
+    # Dibujar el tablero
+    dibujar_tablero(screen, tablero, GRID_SIZE)
 
-    # Draw the board
-    for row in range(num_rows):
-        for col in range(num_cols):
-            cell_type = int(board_data[row + 1][col + 1])
-            if cell_type == 1:
-                color = (255, 255, 255)  # White pearl
-            elif cell_type == 2:
-                color = (0, 0, 0)  # Black pearl
-            else:
-                color = (0, 0, 0)  # Default color for other cells
-            pygame.draw.rect(window, color, (col * cell_width, row * cell_height, cell_width, cell_height))
-
-    # Update the display
     pygame.display.flip()
-
-# Quit the game
-pygame.quit()
