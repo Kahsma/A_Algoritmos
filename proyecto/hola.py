@@ -37,7 +37,7 @@ pygame.init()
 # Constantes
 WIDTH, HEIGHT = 600, 600
 GRID_SIZE = WIDTH // 11  # Calculamos el tamaño de la cuadrícula en función del ancho de la pantalla y el tamaño del tablero
-WHITE = (168, 137, 50)
+NOTEBOOK_YELLOW = (255, 219, 111)
 BLACK = (0, 0, 0)
 
 # Nombre del archivo de entrada
@@ -68,7 +68,7 @@ while running:
                 elif tipo_perla == 2:
                     print("Clic en perla negra en posición:", (x+1, y+1))
 
-    screen.fill(WHITE)
+    screen.fill(NOTEBOOK_YELLOW)
 
     # Dibujar el tablero
     dibujar_tablero(screen, tablero, GRID_SIZE)
