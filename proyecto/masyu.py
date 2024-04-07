@@ -20,7 +20,7 @@ def dibujar_tablero(screen, tablero, grid_size):
     # Dibujar cuadrícula
     for x in range(len(tablero[0])):
         for y in range(len(tablero)):
-            pygame.draw.rect(screen, WHITE, (x * grid_size, y * grid_size, grid_size, grid_size))
+            pygame.draw.rect(screen, NOTEBOOK_YELLOW, (x * grid_size, y * grid_size, grid_size, grid_size))
             pygame.draw.rect(screen, BLACK, (x * grid_size, y * grid_size, grid_size, grid_size), 1)
 
     # Dibujar perlas
@@ -39,6 +39,7 @@ WIDTH, HEIGHT = 600, 600
 GRID_SIZE = WIDTH // 11  # Calculamos el tamaño de la cuadrícula en función del ancho de la pantalla y el tamaño del tablero
 NOTEBOOK_YELLOW = (255, 219, 111)
 BLACK = (0, 0, 0)
+
 
 # Nombre del archivo de entrada
 nombre_archivo = 'entrada.txt'
