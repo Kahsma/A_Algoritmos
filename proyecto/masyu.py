@@ -32,36 +32,29 @@ def dibujar_tablero(screen, tablero, grid_size):
             elif tablero[y][x] == 2:  # Perla negra
                 pygame.draw.circle(screen, (0, 0, 0), ((x * grid_size) + (grid_size // 2), (y * grid_size) + (grid_size // 2)), 10)
             elif tablero[y][x] == 3:  # Línea
-                pygame.draw.line(screen, (0, 0, 0), (x * grid_size + GRID_SIZE // 2, y * grid_size),
-                                 (x * grid_size + GRID_SIZE // 2, (y + 1) * grid_size), 3)
-                pygame.draw.line(screen, (0, 0, 0), (x * grid_size, y * grid_size + GRID_SIZE // 2),
-                                 ((x + 1) * grid_size, y * grid_size + GRID_SIZE // 2), 3)
+                pygame.draw.line(screen, (0, 0, 0), (x * grid_size + grid_size // 2, y * grid_size + grid_size // 2),
+                                 ((x + 1) * grid_size, y * grid_size + grid_size // 2), 3)
             elif tablero[y][x] == 4:  # Perla blanca con línea
                 pygame.draw.circle(screen, (255, 255, 255), ((x * grid_size) + (grid_size // 2), (y * grid_size) + (grid_size // 2)), 10)
-                pygame.draw.line(screen, (0, 0, 0), (x * grid_size + GRID_SIZE // 2, y * grid_size),
-                                 (x * grid_size + GRID_SIZE // 2, (y + 1) * grid_size), 3)
-                pygame.draw.line(screen, (0, 0, 0), (x * grid_size, y * grid_size + GRID_SIZE // 2),
-                                 ((x + 1) * grid_size, y * grid_size + GRID_SIZE // 2), 3)
+                pygame.draw.line(screen, (0, 0, 0), (x * grid_size + grid_size // 2, y * grid_size + grid_size // 2),
+                                 ((x + 1) * grid_size, y * grid_size + grid_size // 2), 3)
             elif tablero[y][x] == 5:  # Perla negra con línea
                 pygame.draw.circle(screen, (0, 0, 0), ((x * grid_size) + (grid_size // 2), (y * grid_size) + (grid_size // 2)), 10)
-                pygame.draw.line(screen, (0, 0, 0), (x * grid_size + GRID_SIZE // 2, y * grid_size),
-                                 (x * grid_size + GRID_SIZE // 2, (y + 1) * grid_size), 3)
-                pygame.draw.line(screen, (0, 0, 0), (x * grid_size, y * grid_size + GRID_SIZE // 2),
-                                 ((x + 1) * grid_size, y * grid_size + GRID_SIZE // 2), 3)
+                pygame.draw.line(screen, (0, 0, 0), (x * grid_size + grid_size // 2, y * grid_size + grid_size // 2),
+                                 ((x + 1) * grid_size, y * grid_size + grid_size // 2), 3)
+                
+            # Verificar líneas adyacentes y conectarlas visualmente
+            if tablero[y][x] == 3 or tablero[y][x] == 4 or tablero[y][x] == 5:  # Línea
+                if x > 0 and tablero[y][x-1] == tablero[y][x]:  # Línea a la izquierda
+                    pygame.draw.line(screen, (0, 0, 0), (x * grid_size + grid_size // 2, y * grid_size + grid_size // 2),
+                                     ((x - 1) * grid_size + grid_size // 2, y * grid_size + grid_size // 2), 3)
+                if y > 0 and tablero[y-1][x] == tablero[y][x]:  # Línea arriba
+                    pygame.draw.line(screen, (0, 0, 0), (x * grid_size + grid_size // 2, y * grid_size + grid_size // 2),
+                                     (x * grid_size + grid_size // 2, (y - 1) * grid_size + grid_size // 2), 3)
 
 
-def verificar_lineas_adyacentes(tablero, x, y):
-    adyacentes = []
-    if y > 0 and tablero[y-1][x] == 3:  # Verificar línea arriba
-        adyacentes.append((x, y-1))
-    if y < len(tablero) - 1 and tablero[y+1][x] == 3:  # Verificar línea abajo
-        adyacentes.append((x, y+1))
-    if x > 0 and tablero[y][x-1] == 3:  # Verificar línea a la izquierda
-        adyacentes.append((x-1, y))
-    if x < len(tablero[0]) - 1 and tablero[y][x+1] == 3:  # Verificar línea a la derecha
-        adyacentes.append((x+1, y))
-    return adyacentes
-# Inicializar Pygame
+
+
 pygame.init()
 
 # Constantes
@@ -101,10 +94,6 @@ while running:
                 elif tablero[y][x] == 0:  # Si es una casilla vacía
                     print("Clic en casilla vacía en posición:", (x+1, y+1))
                     tablero[y][x] = 3  # Colocar el valor 4 en la casilla vacía para una perla blanca con línea
-                    # Verificar y conectar líneas adyacentes
-                    adyacentes = verificar_lineas_adyacentes(tablero, x, y)
-                    for ax, ay in adyacentes:
-                        tablero[ay][ax] = 3  # Conectar línea adyacente
                 elif tablero[y][x] == 3:  # Si es una línea
                     print("Clic en línea en posición:", (x+1, y+1))
                     tablero[y][x] = 0  # Eliminar la línea de la casilla
