@@ -1,3 +1,4 @@
+import pprint
 import pygame
 import sys
 
@@ -20,17 +21,46 @@ def dibujar_tablero(screen, tablero, grid_size):
     # Dibujar cuadrícula
     for x in range(len(tablero[0])):
         for y in range(len(tablero)):
-            pygame.draw.rect(screen, WHITE, (x * grid_size, y * grid_size, grid_size, grid_size))
+            pygame.draw.rect(screen, NOTEBOOK_YELLOW, (x * grid_size, y * grid_size, grid_size, grid_size))
             pygame.draw.rect(screen, BLACK, (x * grid_size, y * grid_size, grid_size, grid_size), 1)
 
-    # Dibujar perlas
+    # Dibujar elementos
     for y in range(len(tablero)):
         for x in range(len(tablero[y])):
             if tablero[y][x] == 1:  # Perla blanca
                 pygame.draw.circle(screen, (255, 255, 255), ((x * grid_size) + (grid_size // 2), (y * grid_size) + (grid_size // 2)), 10)
             elif tablero[y][x] == 2:  # Perla negra
                 pygame.draw.circle(screen, (0, 0, 0), ((x * grid_size) + (grid_size // 2), (y * grid_size) + (grid_size // 2)), 10)
+            elif tablero[y][x] == 3:  # Línea
+                pygame.draw.line(screen, (0, 0, 0), (x * grid_size + GRID_SIZE // 2, y * grid_size),
+                                 (x * grid_size + GRID_SIZE // 2, (y + 1) * grid_size), 3)
+                pygame.draw.line(screen, (0, 0, 0), (x * grid_size, y * grid_size + GRID_SIZE // 2),
+                                 ((x + 1) * grid_size, y * grid_size + GRID_SIZE // 2), 3)
+            elif tablero[y][x] == 4:  # Perla blanca con línea
+                pygame.draw.circle(screen, (255, 255, 255), ((x * grid_size) + (grid_size // 2), (y * grid_size) + (grid_size // 2)), 10)
+                pygame.draw.line(screen, (0, 0, 0), (x * grid_size + GRID_SIZE // 2, y * grid_size),
+                                 (x * grid_size + GRID_SIZE // 2, (y + 1) * grid_size), 3)
+                pygame.draw.line(screen, (0, 0, 0), (x * grid_size, y * grid_size + GRID_SIZE // 2),
+                                 ((x + 1) * grid_size, y * grid_size + GRID_SIZE // 2), 3)
+            elif tablero[y][x] == 5:  # Perla negra con línea
+                pygame.draw.circle(screen, (0, 0, 0), ((x * grid_size) + (grid_size // 2), (y * grid_size) + (grid_size // 2)), 10)
+                pygame.draw.line(screen, (0, 0, 0), (x * grid_size + GRID_SIZE // 2, y * grid_size),
+                                 (x * grid_size + GRID_SIZE // 2, (y + 1) * grid_size), 3)
+                pygame.draw.line(screen, (0, 0, 0), (x * grid_size, y * grid_size + GRID_SIZE // 2),
+                                 ((x + 1) * grid_size, y * grid_size + GRID_SIZE // 2), 3)
 
+
+def verificar_lineas_adyacentes(tablero, x, y):
+    adyacentes = []
+    if y > 0 and tablero[y-1][x] == 3:  # Verificar línea arriba
+        adyacentes.append((x, y-1))
+    if y < len(tablero) - 1 and tablero[y+1][x] == 3:  # Verificar línea abajo
+        adyacentes.append((x, y+1))
+    if x > 0 and tablero[y][x-1] == 3:  # Verificar línea a la izquierda
+        adyacentes.append((x-1, y))
+    if x < len(tablero[0]) - 1 and tablero[y][x+1] == 3:  # Verificar línea a la derecha
+        adyacentes.append((x+1, y))
+    return adyacentes
 # Inicializar Pygame
 pygame.init()
 
@@ -45,7 +75,7 @@ nombre_archivo = 'entrada.txt'
 
 # Crear el tablero a partir del archivo
 tablero = crear_tablero_desde_archivo(nombre_archivo)
-
+pprint.pprint(tablero)
 # Crear la ventana del juego
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Tablero desde Archivo")
@@ -57,20 +87,39 @@ while running:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-                # Detección de clics
+        # Detección de clics
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Si se hace clic izquierdo
             pos = pygame.mouse.get_pos()
             x, y = pos[0] // GRID_SIZE, pos[1] // GRID_SIZE  # Convertir posición de pantalla a posición en la matriz
             if 0 <= x < len(tablero[0]) and 0 <= y < len(tablero):  # Verificar que la posición esté dentro del tablero
-                tipo_perla = tablero[y][x]
-                if tipo_perla == 1:
+                if tablero[y][x] == 1:  # Si es una perla blanca
                     print("Clic en perla blanca en posición:", (x+1, y+1))
-                elif tipo_perla == 2:
+                    tablero[y][x] = 4  # Convertir perla blanca en perla blanca con línea
+                elif tablero[y][x] == 2:  # Si es una perla negra
                     print("Clic en perla negra en posición:", (x+1, y+1))
+                    tablero[y][x] = 5  # Convertir perla negra en perla negra con línea
+                elif tablero[y][x] == 0:  # Si es una casilla vacía
+                    print("Clic en casilla vacía en posición:", (x+1, y+1))
+                    tablero[y][x] = 3  # Colocar el valor 4 en la casilla vacía para una perla blanca con línea
+                    # Verificar y conectar líneas adyacentes
+                    adyacentes = verificar_lineas_adyacentes(tablero, x, y)
+                    for ax, ay in adyacentes:
+                        tablero[ay][ax] = 3  # Conectar línea adyacente
+                elif tablero[y][x] == 3:  # Si es una línea
+                    print("Clic en línea en posición:", (x+1, y+1))
+                    tablero[y][x] = 0  # Eliminar la línea de la casilla
+                    pprint.pprint(tablero)
+                elif tablero[y][x] == 4:
+                    print("Clic en perla blanca con línea en posición:", (x+1, y+1))
+                    tablero[y][x] = 1
+                elif tablero[y][x] == 5:
+                    print("Clic en perla negra con línea en posición:", (x+1, y+1))
+                    tablero[y][x] = 2
 
     screen.fill(NOTEBOOK_YELLOW)
 
     # Dibujar el tablero
     dibujar_tablero(screen, tablero, GRID_SIZE)
+    
 
     pygame.display.flip()
